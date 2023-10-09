@@ -1,4 +1,4 @@
-function project_maxksum_grid!(
+function project_topksum_grid!(
   xbarsort::AbstractVector{Tfr}, x0sort::AbstractVector{Tfr}, r::Tfr, k::Ti,
   active::Bool, x0prepop::Bool=false, maxt::Real=10_000,
 ) where {Tfr<:Union{AbstractFloat,Rational},Ti<:Integer}

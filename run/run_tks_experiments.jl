@@ -11,10 +11,10 @@ addprocs(2)
   include(PROJPATH * "src/projection_grid.jl")
   include(PROJPATH * "src/projection_gurobi.jl")
   include(PROJPATH * "src/utility.jl")
-  include(PROJPATH * "run/helper_mks_experiments.jl")
+  include(PROJPATH * "run/helper_tks_experiments.jl")
   include(PROJPATH * "run/projection.jl")
-  # global const DATAPATH = "/home/roth0674/drive/mks_results/"
-  global const DATAPATH = "/Users/jakeroth/mks_results_test/"
+  # global const DATAPATH = "/home/roth0674/drive/tks_results/"
+  global const DATAPATH = "/Users/jakeroth/tks_results_test/"
   using NaNStatistics
 end # @everywhere
 
@@ -42,7 +42,7 @@ for ni in eachindex(nlevel)
     println("===================")
     println("   n=$n, DT=$DT")
     println("===================")
-    test_mks_timing(n, DT, nrep, rlevel, klevel, DATAPATH, maxn_gurobi, maxn_grid, expers, rep_offset)
+    test_tks_timing(n, DT, nrep, rlevel, klevel, DATAPATH, maxn_gurobi, maxn_grid, expers, rep_offset)
   end
 end
 
@@ -64,7 +64,7 @@ for ni in eachindex(nlevel)
     println("===================")
     println("   n=$n, DT=$DT")
     println("===================")
-    test_mks_timing(n, DT, nrep, rlevel, klevel, DATAPATH, maxn_gurobi, maxn_grid, expers, rep_offset)
+    test_tks_timing(n, DT, nrep, rlevel, klevel, DATAPATH, maxn_gurobi, maxn_grid, expers, rep_offset)
   end
 end
 
@@ -141,6 +141,6 @@ for ni in eachindex(nlevel)
     println("===================")
     println("   n=$n, DT=$DT")
     println("===================")
-    test_mks_timing(n, DT, nrep, rlevel, klevel, DATAPATH, maxn_gurobi, maxn_grid, expers, rep_offset)
+    test_tks_timing(n, DT, nrep, rlevel, klevel, DATAPATH, maxn_gurobi, maxn_grid, expers, rep_offset)
   end
 end

@@ -10,7 +10,7 @@ function default_proj_options()
   return options
 end
 
-function project_maxksum_gurobi!(
+function project_topksum_grbs(
   x0sort::Vector, r::Real, k::Integer,
   env::Ptr{Nothing},
   options::Dict=default_proj_options()
@@ -222,7 +222,7 @@ function project_maxksum_gurobi!(
 end
 
 
-function project_maxksum_unsort_gurobi!(
+function project_topksum_grbu(
   x0::Vector, r::Real, k::Integer,
   env::Ptr{Nothing},
   options::Dict=default_proj_options()

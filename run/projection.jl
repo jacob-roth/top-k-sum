@@ -9,7 +9,7 @@ PLCP: detailed timing of Algorithm 1
   - verb: binary for verbosity level
   - hist: binary for history
 =================================================#
-function project_maxksum_plcp_experiment!(
+function project_topksum_plcp_experiment!(
   xbarsort::AbstractVector{Tfr}, x0sort::AbstractVector{Tfr}, r::Tfr, k::Ti, active::Bool=true,
   x0prepop::Bool=false, verb::Bool=false, hist::Bool=false
 ) where {Tfr<:Union{AbstractFloat,Rational},Ti<:Integer}
@@ -288,7 +288,7 @@ ESGS: detailed timing of Algorithm 3
   - verb: binary for verbosity level
   - hist: binary for history
 =================================================#
-function project_maxksum_esgs_experiment!(
+function project_topksum_esgs_experiment!(
   xbarsort::AbstractVector{Tfr}, x0sort::AbstractVector{Tfr}, r::Tfr, k::Ti,
   active::Bool, x0prepop::Bool=false, verb::Bool=false, hist::Bool=false,
 ) where {Tfr<:Union{AbstractFloat,Rational},Ti<:Integer}
@@ -520,7 +520,7 @@ GRID: detailed timing of GRID algorithm
   - verb: binary for verbosity level
   - hist: binary for history
 =================================================#
-function project_maxksum_grid_experiment!(
+function project_topksum_grid_experiment!(
   xbarsort::AbstractVector{Tfr}, x0sort::AbstractVector{Tfr}, r::Tfr, k::Ti,
   active::Bool, x0prepop::Bool=false, verb::Bool=false, hist::Bool=false, maxt::Real=10_000,
 ) where {Tfr<:Union{AbstractFloat,Rational},Ti<:Integer}

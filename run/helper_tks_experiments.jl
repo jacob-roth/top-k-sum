@@ -47,19 +47,19 @@ function initialize_output(n, DT, nr, nk)
   out["ALL"][:t_psort] = fill(+Inf, nk) # partial sort time
   out["GRBU"][:t_psort] = fill(0.0, nr, nk) # partial sort time
   
-  # total infeas (sup-norm): mks and order
+  # total infeas (sup-norm): tks and order
   out["ETGS"][:infeas] = fill(+Inf, nr, nk) # total sup infeasibility
   out["PLCP"][:infeas] = fill(+Inf, nr, nk) # total sup infeasibility
   out["GRID"][:infeas] = fill(+Inf, nr, nk) # total sup infeasibility
   out["GRBS"][:infeas] = fill(+Inf, nr, nk) # total sup infeasibility
   out["GRBU"][:infeas] = fill(+Inf, nr, nk) # total sup infeasibility
   
-  # mks infeasibility
-  out["ETGS"][:mks] = fill(+Inf, nr, nk) # method 1 violation of Mk(xbar) <= r
-  out["PLCP"][:mks] = fill(+Inf, nr, nk) # method 2 violation of Mk(xbar) <= r
-  out["GRID"][:mks] = fill(+Inf, nr, nk) # method 3 violation of Mk(xbar) <= r
-  out["GRBS"][:mks] = fill(+Inf, nr, nk) # method 4 violation of Mk(xbar) <= r
-  out["GRBU"][:mks] = fill(+Inf, nr, nk) # method 5 violation of Mk(xbar) <= r
+  # tks infeasibility
+  out["ETGS"][:tks] = fill(+Inf, nr, nk) # method 1 violation of Mk(xbar) <= r
+  out["PLCP"][:tks] = fill(+Inf, nr, nk) # method 2 violation of Mk(xbar) <= r
+  out["GRID"][:tks] = fill(+Inf, nr, nk) # method 3 violation of Mk(xbar) <= r
+  out["GRBS"][:tks] = fill(+Inf, nr, nk) # method 4 violation of Mk(xbar) <= r
+  out["GRBU"][:tks] = fill(+Inf, nr, nk) # method 5 violation of Mk(xbar) <= r
 
   # order infeasibility
   out["ETGS"][:ord] = fill(+Inf, nr, nk) # method 1 violation of x_{i} >= x_{i+1}
@@ -143,7 +143,7 @@ function writeout_piv(D::Dict, n::Integer, DT::DataType, repi::Integer, datapath
   writedlm(datapath*"/$(n)$(DT)/out_$(id)_t_run_$repi.csv", D[:t_run])
   writedlm(datapath*"/$(n)$(DT)/out_$(id)_t_primal_$repi.csv", D[:t_primal])
   writedlm(datapath*"/$(n)$(DT)/out_$(id)_t_total_$repi.csv", D[:t_init] + D[:t_run] + D[:t_primal])
-  writedlm(datapath*"/$(n)$(DT)/out_$(id)_mks_$repi.csv", D[:mks])
+  writedlm(datapath*"/$(n)$(DT)/out_$(id)_tks_$repi.csv", D[:tks])
   writedlm(datapath*"/$(n)$(DT)/out_$(id)_ord_$repi.csv", D[:ord])
   writedlm(datapath*"/$(n)$(DT)/out_$(id)_infeas_$repi.csv", D[:infeas])
   writedlm(datapath*"/$(n)$(DT)/out_$(id)_obj_$repi.csv", D[:obj])
@@ -172,7 +172,7 @@ function writeout_grb(D::Dict, n::Integer, DT::DataType, repi::Integer, datapath
     # writedlm(datapath*"/$(n)$(DT)/out_$(id)_t_total_$repi.csv", D[:t_init] + D[:t_run] + D[:t_primal] + D[:t_psort])
     writedlm(datapath*"/$(n)$(DT)/out_$(id)_t_total_$repi.csv", D[:t_run] + D[:t_primal])
   end
-  writedlm(datapath*"/$(n)$(DT)/out_$(id)_mks_$repi.csv", D[:mks])
+  writedlm(datapath*"/$(n)$(DT)/out_$(id)_tks_$repi.csv", D[:tks])
   writedlm(datapath*"/$(n)$(DT)/out_$(id)_ord_$repi.csv", D[:ord])
   writedlm(datapath*"/$(n)$(DT)/out_$(id)_infeas_$repi.csv", D[:infeas])
   writedlm(datapath*"/$(n)$(DT)/out_$(id)_obj_$repi.csv", D[:obj])
@@ -181,7 +181,7 @@ function writeout_grb(D::Dict, n::Integer, DT::DataType, repi::Integer, datapath
 end
 
 """
-test_mks_timing(n::Integer, DT::DataType, nrep::Integer)
+test_tks_timing(n::Integer, DT::DataType, nrep::Integer)
 - n: problem dimension
 - DT: data type
 - nrep: number of replications
@@ -192,7 +192,7 @@ test_mks_timing(n::Integer, DT::DataType, nrep::Integer)
 - maxn_grid: largest n for grid
 - expers: (r,k) tuples for subset of rlevel × klevel experiments
 """
-function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
+function test_tks_timing(n::Integer, DT::DataType, nrep::Integer,
   rlevel::Vector, klevel::Vector,
   datapath::String,
   maxn_gurobi::Integer=100_000,
@@ -281,14 +281,14 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
     # loop over k and r 
     for ki in eachindex(klevel)
       k = Int64(min(max(2, ceil(n*klevel[ki])),n-1))
-      mks = sum(out["ALL"][:x0sort][1:k])
+      tks = sum(out["ALL"][:x0sort][1:k])
       out["ALL"][:t_psort][ki] = @elapsed begin
         partialsortsig = partialsortperm(x0, 1:k, rev=true)
       end
       writedlm(datapath*"/$(n)$(DT)/t_psort.csv", out["ALL"][:t_psort])
       
       for ri in eachindex(rlevel)
-        r = DT(rlevel[ri]) * mks
+        r = DT(rlevel[ri]) * tks
         if !isnothing(expers)
           if (rlevel[ri], klevel[ki]) ∉ expers
             println("  --> skipping: $((rlevel[ri], klevel[ki]))")
@@ -299,7 +299,7 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
 
         # ETGS
         xbarsort .= x0sort
-        @views sp, k0k1, nit, t, case = project_maxksum_esgs_experiment!(
+        @views sp, k0k1, nit, t, case = project_topksum_esgs_experiment!(
            xbarsort, x0sort, r, k, out["ALL"][:active][ri,ki], x0prepop, verb, hist
         )
         D = out["ETGS"]
@@ -310,9 +310,9 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
         D[:t_init][ri,ki] = t[1]
         D[:t_run][ri,ki] = t[2]
         D[:t_primal][ri,ki] = t[3]
-        D[:mks][ri,ki] = max(sum(D[:xbarsort][1:k]) - r, 0.0) #! is sorted
+        D[:tks][ri,ki] = max(sum(D[:xbarsort][1:k]) - r, 0.0) #! is sorted
         D[:ord][ri,ki] = maximum(max.(diff(D[:xbarsort]), 0.0))
-        D[:infeas][ri,ki] = max(D[:mks][ri,ki], D[:ord][ri,ki])
+        D[:infeas][ri,ki] = max(D[:tks][ri,ki], D[:ord][ri,ki])
         D[:obj][ri,ki] = 0.5 * norm(D[:xbarsort] .- out["ALL"][:x0sort], 2)^2
         D[:nit][ri,ki] = nit
         D[:case][ri,ki] = case
@@ -320,7 +320,7 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
 
         # PLCP
         xbarsort .= x0sort
-        @views sp, ab, nit, t, case = project_maxksum_plcp_experiment!(
+        @views sp, ab, nit, t, case = project_topksum_plcp_experiment!(
            xbarsort, x0sort, r, k, out["ALL"][:active][ri,ki], x0prepop, verb, hist
         )
         D = out["PLCP"]
@@ -341,9 +341,9 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
         D[:t_init][ri,ki] = t[1]
         D[:t_run][ri,ki] = t[2]
         D[:t_primal][ri,ki] = t[3]
-        D[:mks][ri,ki] = max(sum(D[:xbarsort][1:k]) - r, 0.0) #! is sorted
+        D[:tks][ri,ki] = max(sum(D[:xbarsort][1:k]) - r, 0.0) #! is sorted
         D[:ord][ri,ki] = maximum(max.(diff(D[:xbarsort]), 0.0))
-        D[:infeas][ri,ki] = max(D[:mks][ri,ki], D[:ord][ri,ki])
+        D[:infeas][ri,ki] = max(D[:tks][ri,ki], D[:ord][ri,ki])
         D[:obj][ri,ki] = 0.5 * norm(D[:xbarsort] .- out["ALL"][:x0sort], 2)^2
         D[:nit][ri,ki] = nit
         D[:case][ri,ki] = case
@@ -352,7 +352,7 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
         # GRID
         if n <= maxn_grid
           xbarsort .= x0sort
-          @views sp, k0k1, nit, t, case = project_maxksum_grid_experiment!(
+          @views sp, k0k1, nit, t, case = project_topksum_grid_experiment!(
            xbarsort, x0sort, r, k, out["ALL"][:active][ri,ki], x0prepop, verb, hist, piv_options[:maxt]
           )
           D = out["GRID"]
@@ -363,9 +363,9 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
           D[:t_init][ri,ki] = t[1]
           D[:t_run][ri,ki] = t[2]
           D[:t_primal][ri,ki] = t[3]
-          D[:mks][ri,ki] = max(sum(sort(D[:xbarsort], rev=true)[1:k]) - r, 0.0) #! not necessarily sorted
+          D[:tks][ri,ki] = max(sum(sort(D[:xbarsort], rev=true)[1:k]) - r, 0.0) #! not necessarily sorted
           D[:ord][ri,ki] = maximum(max.(diff(D[:xbarsort]), 0.0))
-          D[:infeas][ri,ki] = max(D[:mks][ri,ki], D[:ord][ri,ki])
+          D[:infeas][ri,ki] = max(D[:tks][ri,ki], D[:ord][ri,ki])
           D[:obj][ri,ki] = 0.5 * norm(D[:xbarsort] .- out["ALL"][:x0sort], 2)^2
           D[:nit][ri,ki] = nit
           D[:case][ri,ki] = case
@@ -375,7 +375,7 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
         # GUROBI
         if n <= maxn_gurobi
           # GRB sort
-          res = project_maxksum_gurobi!(out["ALL"][:x0sort], r, k, env, grb_options)
+          res = project_topksum_grbs(out["ALL"][:x0sort], r, k, env, grb_options)
           D = out["GRBS"]
           D[:name] = "GRBS"
           D[:xbarsort] .= res[:x]
@@ -385,16 +385,16 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
           D[:t_init][ri,ki] = res[:inittime]
           D[:t_run][ri,ki] = res[:walltime]
           D[:t_primal][ri,ki] = 0.0
-          D[:mks][ri,ki] = max(sum(sort(D[:xbarsort], rev=true)[1:k]) - r, 0.0) #! not necessarily sorted
+          D[:tks][ri,ki] = max(sum(sort(D[:xbarsort], rev=true)[1:k]) - r, 0.0) #! not necessarily sorted
           D[:ord][ri,ki] = maximum(max.(diff(D[:xbarsort]), 0.0))
-          D[:infeas][ri,ki] = max(D[:mks][ri,ki], D[:ord][ri,ki])
+          D[:infeas][ri,ki] = max(D[:tks][ri,ki], D[:ord][ri,ki])
           D[:obj][ri,ki] = 0.5 * norm(D[:xbarsort] .- out["ALL"][:x0sort], 2)^2
           D[:nit][ri,ki] = res[:iter]
           D[:nactivecon][ri,ki] = res[:nactivecon]
           writeout_grb(D, n, DT, repi, datapath)
           
           # GRB unsort
-          res = project_maxksum_unsort_gurobi!(out["ALL"][:x0sort], r, k, env, grb_options)
+          res = project_topksum_grbu(out["ALL"][:x0sort], r, k, env, grb_options)
           D = out["GRBU"]
           D[:name] = "GRBU"
           D[:xbarsort] .= res[:xsort]
@@ -405,14 +405,14 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
           D[:t_run][ri,ki] = res[:walltime]
           D[:t_primal][ri,ki] = 0.0
           D[:t_psort][ri,ki] = res[:psort_time]
-          D[:mks][ri,ki] = max(sum(sort(D[:xbarsort], rev=true)[1:k]) - r, 0.0) #! not necessarily sorted
+          D[:tks][ri,ki] = max(sum(sort(D[:xbarsort], rev=true)[1:k]) - r, 0.0) #! not necessarily sorted
           kappa = res[:kappa]
           _k_ = res[:_k_]
           D[:ord][ri,ki] = max(
             max(0.0, maximum(res[:x][_k_] .- res[:x][kappa])),
             max(0.0, maximum(res[:x][setdiff(collect(1:n), kappa)] .- res[:x][_k_])),
           )
-          D[:infeas][ri,ki] = max(D[:mks][ri,ki], D[:ord][ri,ki])
+          D[:infeas][ri,ki] = max(D[:tks][ri,ki], D[:ord][ri,ki])
           D[:obj][ri,ki] = 0.5 * norm(D[:xbarsort] .- out["ALL"][:x0sort], 2)^2
           D[:nit][ri,ki] = res[:iter]
           D[:nactivecon][ri,ki] = res[:nactivecon]
@@ -458,28 +458,28 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
         # sqrt(eps(DT)
         if argmax(diffs) == 1 && maximum(diffs) > tol
           println("(n, repi, r, k) = $((n, repi, r, k))")
-          @warn("numerical error in ETGS v PLCP)? mks infeas = $(
+          @warn("numerical error in ETGS v PLCP)? tks infeas = $(
             round(max(0, sum(out["PLCP"][:xbarsort][1:k])-r),digits=5)
           ), diff_12 = $(
             round(diff_12,digits=8)
           )")
         elseif argmax(diffs) == 2 && maximum(diffs) > tol && n <= maxn_grid
           println("(n, repi, r, k) = $((n, repi, r, k))")
-          @warn("numerical error in ETGS v GRID)? mks infeas = $(
+          @warn("numerical error in ETGS v GRID)? tks infeas = $(
             round(max(0, sum(out["GRID"][:xbarsort][1:k])-r),digits=5)
           ), diff_13 = $(
             round(diff_13,digits=8)
           )")
         elseif argmax(diffs) == 3 && maximum(diffs) > tol && n <= maxn_gurobi
           println("(n, repi, r, k) = $((n, repi, r, k))")
-          @warn("numerical error in ETGS v GRBS)? mks infeas = $(
+          @warn("numerical error in ETGS v GRBS)? tks infeas = $(
             round(max(0, sum(out["GRBS"][:xbarsort][1:k])-r),digits=5)
           ), diff_14 = $(
             round(diff_14,digits=8)
           )")
         elseif argmax(diffs) == 4 && maximum(diffs) > tol && n <= maxn_gurobi
           println("(n, repi, r, k) = $((n, repi, r, k))")
-          @warn("numerical error in ETGS v GRBU)? mks infeas = $(
+          @warn("numerical error in ETGS v GRBU)? tks infeas = $(
             round(max(0, sum(out["GRBU"][:xbarsort][1:k])-r),digits=5)
           ), diff_15 = $(
             round(diff_15,digits=8)
@@ -493,7 +493,7 @@ function test_mks_timing(n::Integer, DT::DataType, nrep::Integer,
   pmap(sr, 1:nrep)
 end
 
-function load_mks_results(datapath::String, rep_lo::Integer, rep_hi::Integer,
+function load_tks_results(datapath::String, rep_lo::Integer, rep_hi::Integer,
   maxn_grid::Integer, maxn_gurobi::Integer, nlarge=false
 )
   out = Dict()
@@ -529,7 +529,7 @@ function load_mks_results(datapath::String, rep_lo::Integer, rep_hi::Integer,
     infeas = files[occursin.("infeas", files)]
     k0 = files[occursin.("k0", files)]
     k1 = files[occursin.("k1", files)]
-    mks = files[occursin.("mks", files)]
+    tks = files[occursin.("tks", files)]
     nit = files[occursin.("_nit", files)]
     nactivecon = files[occursin.("nactivecon", files)]
     obj = files[occursin.("obj", files)]
@@ -538,8 +538,8 @@ function load_mks_results(datapath::String, rep_lo::Integer, rep_hi::Integer,
     t_run = files[occursin.("t_run", files)]
     t_primal = files[occursin.("t_primal", files)]
     t_psort = files[occursin.("t_psort", files)]
-    outnames = ["active", "bestfeas", "case", "infeas", "k0", "k1", "mks", "nit", "nactivecon", "obj", "ord", "t_init", "t_run", "t_primal", "t_psort"]
-    outfiles = [active, bestfeas, case, infeas, k0, k1, mks, nit, nactivecon, obj, ord, t_init, t_run, t_primal, t_psort]
+    outnames = ["active", "bestfeas", "case", "infeas", "k0", "k1", "tks", "nit", "nactivecon", "obj", "ord", "t_init", "t_run", "t_primal", "t_psort"]
+    outfiles = [active, bestfeas, case, infeas, k0, k1, tks, nit, nactivecon, obj, ord, t_init, t_run, t_primal, t_psort]
     klevel = files[occursin.("klevel", files)]
     rlevel = files[occursin.("rlevel", files)]
     # maxn_grid = files[occursin.("maxn_grid", files)]
@@ -600,15 +600,15 @@ function calc_bestfeasunsorted!(out::Dict)
     if !isnothing(match(r"(\d+)", key))
       for alg in 1:5
         if haskey(out[key], alg)
-          nrep = size(out[key][alg]["mks"], 1)
+          nrep = size(out[key][alg]["tks"], 1)
           bestobj = copy(out[key][alg]["obj"])
           for i in 1:5
             if haskey(out[key], i)
-              bestobj .= min.(bestobj, out[key][i]["obj"] .+ 1e10 .* (out[key][i]["mks"] .> 5eps()))
+              bestobj .= min.(bestobj, out[key][i]["obj"] .+ 1e10 .* (out[key][i]["tks"] .> 5eps()))
             end
           end
           out[key][alg]["bestfeasunsorted"] = (
-            (out[key][alg]["mks"] .<= 5eps()) .* (out[key][alg]["obj"] .<= bestobj .+ 5eps())
+            (out[key][alg]["tks"] .<= 5eps()) .* (out[key][alg]["obj"] .<= bestobj .+ 5eps())
           )
         end
       end

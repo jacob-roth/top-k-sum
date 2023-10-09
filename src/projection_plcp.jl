@@ -33,7 +33,7 @@ function ypBtz!(
   nothing
 end
 
-function project_maxksum_plcp!(
+function project_topksum_plcp!(
   xbarsort::AbstractVector{Tfr}, x0sort::AbstractVector{Tfr}, r::Tfr, k::Ti,
   active::Bool=true, x0prepop::Bool=false
 ) where {Tfr<:Union{AbstractFloat,Rational},Ti<:Integer}

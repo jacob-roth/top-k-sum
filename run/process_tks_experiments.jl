@@ -1,8 +1,9 @@
 import Pkg; Pkg.activate("."); Pkg.instantiate()
 using LinearAlgebra, Random, DelimitedFiles, LaTeXStrings, LaTeXTabulars, Printf, NaNStatistics
 global const PROJPATH = match(r".*top-k-sum/", @__DIR__).match
-include(PROJPATH * "code/run/mks_experiments/helper_mks_experiments.jl")
-global const DATAPATH = "/home/roth0674/drive/mks_results/"
+include(PROJPATH * "run/helper_tks_experiments.jl")
+include(PROJPATH * "run/plot_tks_experiments.jl")
+global const DATAPATH = "/home/roth0674/drive/tks_results/"
 # global const DATAPATH = "/Users/jakeroth/Downloads/mks_results_20231007/"
 global const DT = Float64
 global const maxn_grid = 100_000
@@ -12,7 +13,7 @@ global const maxn_gurobi = 100_000
 # inputs
 #
 
-out = load_mks_results(DATAPATH, 1, 100, maxn_grid, maxn_gurobi)
+out = load_tks_results(DATAPATH, 1, 100, maxn_grid, maxn_gurobi)
 calc_bestfeasunsorted!(out)
 nlevel =  10 .^ collect(1:7)
 algl_names = ["ESGS", "PLCP", "GRID", "GRBS", "GRBU"]
@@ -24,7 +25,7 @@ nlevelj = [1_000, 10_000, 100_000, 1_000_000, 10_000_000]
 nlevel_all = 10 .^ collect(1:7)
 algl = [1,2,3,4,5]
 
-out_large = load_mks_results(DATAPATH, 101, 102, 10^7, 10^7, true)
+out_large = load_tks_results(DATAPATH, 101, 102, 10^7, 10^7, true)
 
 sci_1a(d) = begin
   """one-exponent-digit and one-base-decimaldigit"""

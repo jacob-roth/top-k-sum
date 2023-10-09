@@ -1,4 +1,4 @@
-function project_maxksum_esgs!(
+function project_topksum_esgs!(
   xbarsort::AbstractVector{Tfr}, x0sort::AbstractVector{Tfr}, r::Tfr, k::Ti,
   active::Bool, x0prepop::Bool=false,
 ) where {Tfr<:Union{AbstractFloat,Rational},Ti<:Integer}
