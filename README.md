@@ -16,7 +16,7 @@ Routines in `src/` include three finite-termination algorithms:
 
 and two inexact, QP solvers:
 - GRBS: a QP barrier method using Gurobi based on the _sorted_ formulation, and callable by `project_topksum_grbs`
-- GRBU: a QP barrier method using Gurobi based on the _unsorted_ formulation, and callable by `project_topksum_grbu`. **Note**: there is not a native `quickselect` procedure in `Julia`, so GRBU assumes that the largest $k$ elements of the input vector are partially sorted
+- GRBU: a QP barrier method using Gurobi based on the _unsorted_ formulation, and callable by `project_topksum_grbu`. **Note**: there is not a native `quickselect` procedure in `Julia`, so GRBU assumes that the largest $k$ elements of the input vector are sorted
 
 An example calling sequence for ESGS and the Gurobi-based methods is provided below.
 

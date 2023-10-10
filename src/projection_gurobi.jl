@@ -12,6 +12,41 @@ end
 
 function project_topksum_grbs(
   x0sort::Vector, r::Real, k::Integer,
+  grb_options::Dict=default_proj_options()
+)
+  """convenience method: create new GRB env each time"""
+  begin
+    env_p = Ref{Ptr{Cvoid}}()
+    logfile = C_NULL
+    error = GRBloadenv(env_p, logfile)
+    @assert error == 0
+
+    env = env_p[]
+
+    error = GRBsetintparam(env, GRB_INT_PAR_OUTPUTFLAG, 0)
+    @assert error == 0
+    
+    # parameters
+    error = GRBsetdblparam(env, "TimeLimit", grb_options[:maxtime])
+    @assert error == 0
+    error = GRBsetintparam(env, "Method", Cint(2)) # barrier
+    @assert error == 0
+    error = GRBsetintparam(env, "BarIterLimit", grb_options[:maxiter])
+    @assert error == 0
+    error = GRBsetdblparam(env, "FeasibilityTol", grb_options[:pinfeas_tol])
+    @assert error == 0
+    error = GRBsetdblparam(env, "OptimalityTol", grb_options[:dinfeas_tol])
+    @assert error == 0
+    error = GRBsetdblparam(env, "BarConvTol", grb_options[:relgap_tol])
+    @assert error == 0
+    error = GRBsetintparam(env, "Threads", grb_options[:nthreads])
+    @assert error == 0
+  end
+  return project_topksum_grbs(x0sort, r, k, env)
+end
+
+function project_topksum_grbs(
+  x0sort::Vector, r::Real, k::Integer,
   env::Ptr{Nothing},
   options::Dict=default_proj_options()
 )
@@ -224,9 +259,45 @@ end
 
 function project_topksum_grbu(
   x0::Vector, r::Real, k::Integer,
+  grb_options::Dict=default_proj_options()
+)
+  """convenience method: create new GRB env each time"""
+  begin
+    env_p = Ref{Ptr{Cvoid}}()
+    logfile = C_NULL
+    error = GRBloadenv(env_p, logfile)
+    @assert error == 0
+
+    env = env_p[]
+
+    error = GRBsetintparam(env, GRB_INT_PAR_OUTPUTFLAG, 0)
+    @assert error == 0
+    
+    # parameters
+    error = GRBsetdblparam(env, "TimeLimit", grb_options[:maxtime])
+    @assert error == 0
+    error = GRBsetintparam(env, "Method", Cint(2)) # barrier
+    @assert error == 0
+    error = GRBsetintparam(env, "BarIterLimit", grb_options[:maxiter])
+    @assert error == 0
+    error = GRBsetdblparam(env, "FeasibilityTol", grb_options[:pinfeas_tol])
+    @assert error == 0
+    error = GRBsetdblparam(env, "OptimalityTol", grb_options[:dinfeas_tol])
+    @assert error == 0
+    error = GRBsetdblparam(env, "BarConvTol", grb_options[:relgap_tol])
+    @assert error == 0
+    error = GRBsetintparam(env, "Threads", grb_options[:nthreads])
+    @assert error == 0
+  end
+  return project_topksum_grbu(x0, r, k, env)
+end
+
+function project_topksum_grbu(
+  x0::Vector, r::Real, k::Integer,
   env::Ptr{Nothing},
   options::Dict=default_proj_options()
 )
+  """NOTE: assumes top-k elements of input vector x0 are sorted"""
   # not including partial sort time; show it explicitly as a line in the table
   psort_time = @elapsed begin 
     sig = sortperm(x0, alg=PartialQuickSort(1:k), rev=true);
