@@ -5,18 +5,18 @@ Routines for Euclidean projection of an $n$-dimensional vector $x^0$ onto the to
 ```
 where $k\in\\{1,\ldots,n\\}$ and $r\in\mathbb{R}$ are parameters and where $x_{[i]}$ denotes the $i^{\text{th}}$ largest element of $x$.
 
-The repository contains two directories:
-- `src/`: implementations of the algorithms summarized in XYZ (arxiv).
-- `run/`: scripts for running the experiments summarized in XYZ (arxiv). Experiments can be run from the `run/` folder in terminal as `$ julia run_tks_experiments.jl` by specifying a proper `DATAPATH` variable.
+The repository contains two directories related to the paper https://arxiv.org/abs/2310.07224:
+- `src/`: implementations of the algorithms.
+- `run/`: scripts for running the experiments. Experiments can be run from the `run/` folder in terminal as `$ julia run_tks_experiments.jl` by specifying a proper `DATAPATH` variable.
 
 Routines in `src/` include three finite-termination algorithms:
-- ESGS: an early-stopping grid-search approach callable by `project_topksum_esgs!`
-- PLCP: a parametric-LCP approach callable by `project_topksum_plcp!`
-- GRID: a full grid-search approach callable by `project_topksum_grid!`
+- ESGS: an early-stopping grid-search approach callable by `project_topksum_esgs!`;
+- PLCP: a parametric-LCP approach callable by `project_topksum_plcp!`;
+- GRID: a full grid-search approach callable by `project_topksum_grid!`;
 
 and two inexact, QP solvers:
-- GRBS: a QP barrier method using Gurobi based on the _sorted_ formulation, and callable by `project_topksum_grbs`
-- GRBU: a QP barrier method using Gurobi based on the _unsorted_ formulation, and callable by `project_topksum_grbu`. **Note**: there is not a native `quickselect` procedure in `Julia`, so GRBU assumes that the largest $k$ elements of the input vector are sorted
+- GRBS: a QP barrier method using Gurobi based on the _sorted_ formulation, and callable by `project_topksum_grbs`;
+- GRBU: a QP barrier method using Gurobi based on the _unsorted_ formulation, and callable by `project_topksum_grbu`. **Note**: there is not a native `quickselect` procedure in `Julia`, so GRBU assumes that the largest $k$ elements of the input vector are sorted.
 
 An example calling sequence for ESGS and the Gurobi-based methods is provided below.
 
