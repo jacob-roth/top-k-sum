@@ -24,6 +24,8 @@ An example calling sequence for ESGS and the Gurobi-based methods is provided be
 using Random
 Random.seed!(1234567)
 
+using Gurobi, SparseArrays, SparseMatricesCSR # for Gurobi methods
+
 n = 10;
 k = 4;
 r = 0.1234567;
