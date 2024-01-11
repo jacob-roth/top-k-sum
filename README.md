@@ -73,4 +73,4 @@ julia> # display index-pairs (k0,k1)
 ((1, 7), (3, 4), (3, 4))
 ```
 Note that the Gurobi-based methods return incorrect index-pairs, even in an $n=10$ dimensional problem.
-In general, it is not obvious how to recover appropriate $(k_0,k_1)$ information from a Gurobi solution.
+In general, it is not obvious how to recover appropriate $(k_0,k_1)$ information from an inexact solution.
