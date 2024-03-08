@@ -10,7 +10,7 @@ function project_topksum_esgs!(
         @inbounds xbarsort[i] = x0sort[i]
       end
     end
-    return 0, (-1, -1)
+    return 0, (-1, -1), 0
   end
 
   # initialize
@@ -23,10 +23,16 @@ function project_topksum_esgs!(
   if k == n
     # xbarsort = x0sort - (s0 - r)/n
     lam = (s0 - r) / k
-    @simd for i in 1:k
-      @inbounds xbarsort[i] -= lam
+    if !x0prepop
+      @simd for i in 1:n
+        @inbounds xbarsort[i] = x0sort[i] - lam
+      end
+    else
+      @simd for i in 1:k
+        @inbounds xbarsort[i] -= lam
+      end
     end
-    return 0, (0, n)
+    return 0, (0, n), 0
   elseif k == 1
     # xbarsort = min(x0sort, r)
     if x0prepop
@@ -41,7 +47,10 @@ function project_topksum_esgs!(
         @inbounds xbarsort[i] = min(x0sort[i], r)
       end
     end
-    return 0, (0, findfirst(x0sort .< r))
+    k0bar = 0
+    k1bar = findfirst(x0sort .< r)
+    k1bar = isnothing(k1bar) ? n : k1bar-1
+    return 0, (k0bar, k1bar), 0
   end
 
   # preprocessing
@@ -126,6 +135,6 @@ function project_topksum_esgs!(
     end
   end
   if solved
-    return 1, (k0, k1)
+    return 1, (k0, k1), nit
   end
 end
