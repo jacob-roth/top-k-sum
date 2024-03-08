@@ -59,8 +59,14 @@ function project_topksum_plcp!(
   if k == n
     # xbarsort = x0sort - (s0 - r)/n
     lam = (s0 - r) / k
-    @simd for i in 1:k
-      @inbounds xbarsort[i] -= lam
+    if !x0prepop
+      @simd for i in 1:n
+        @inbounds xbarsort[i] = x0sort[i] - lam
+      end
+    else
+      @simd for i in 1:k
+        @inbounds xbarsort[i] -= lam
+      end
     end
     return 0, (0, n)
   elseif k == 1
@@ -77,7 +83,10 @@ function project_topksum_plcp!(
         @inbounds xbarsort[i] = min(x0sort[i], r)
       end
     end
-    return 0, (0, findfirst(x0sort .< r))
+    k0bar = 0
+    k1bar = findfirst(x0sort .< r)
+    k1bar = isnothing(k1bar) ? n : k1bar-1
+    return 0, (k0bar, k1bar), 0
   else
     # iteration t = 0
     # evaluate mks @ x(lam_1): lam_1=q_k & z=0
