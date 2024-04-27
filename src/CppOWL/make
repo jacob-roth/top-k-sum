@@ -1,0 +1,8 @@
+# build instructions:
+# - make sure `julia` is callable from terminal
+# - make sure `boost` and `cmake` are installed
+# - then run `./make` from terminal
+julia mod_CMakeLists.jl
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --config Release
