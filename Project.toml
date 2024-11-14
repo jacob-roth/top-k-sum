@@ -1,0 +1,10 @@
+name = "TopKSum"
+uuid = "54b3a151-446a-40b7-aa22-7ce3d0fc33ce"
+version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
+
+[compat]
+LinearAlgebra = "1.11.0"
