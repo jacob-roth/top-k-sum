@@ -1,5 +1,4 @@
-# using TopKSum
-include("../src/TopKSum.jl")
+using TopKSum
 using Test
 using LinearAlgebra
 using Gurobi, JuMP
@@ -14,6 +13,7 @@ Random.seed!(1234567)
 tol = 1e-7;
 n = 10;
 k = 4;
+indk = zeros(n); indk[1:k] .= 1.0;
 r = 0.1234567;
 x0 = randn(n);
 pi = sortperm(x0, rev=true); # full sort
@@ -25,16 +25,21 @@ active = sum(x0sort[1:k]) > r; # binary: is the constraint active
 xbarsort_esgs = similar(x0sort); xbarsort_esgs .= x0sort;
 xbarsort_grid = similar(x0sort); xbarsort_grid .= x0sort;
 xbarsort_plcp = similar(x0sort); xbarsort_plcp .= x0sort;
+xbarsort_ssn = similar(x0sort); xbarsort_ssn .= x0sort;
 prepop = true; # binary: is the solution vector pre-populated with elements from sorted input vector
 out_esgs = project_topksum_esgs!(xbarsort_esgs, x0sort, r, k, active, prepop); # solve with ESGS method
 out_grid = project_topksum_grid!(xbarsort_grid, x0sort, r, k, active, prepop); # solve with ESGS method
 out_plcp = project_topksum_plcp!(xbarsort_plcp, x0sort, r, k, active, prepop); # solve with ESGS method
+tmp1 = (zeros(n), zeros(n), zeros(Int, n), zeros(Int, n), zeros(Bool, n))
+prox_type = 1;
+out_ssn = project_topksum_ssn!(xbarsort_ssn, x0sort, indk, r, false, false, prox_type, tmp1); # solve with ESGS method
 out_grbs = project_topksum_grbs(x0sort, r, k); # solve with GRBS method
 out_grbu = project_topksum_grbu(x0psort, r, k); # solve with GRBU (partial sort) method
 @test norm(xbarsort_esgs .- out_grbs[:x], Inf) <= tol
 @test norm(xbarsort_esgs .- out_grbu[:xsort], Inf) <= tol
 @test norm(xbarsort_esgs .- xbarsort_grid, Inf) <= tol
 @test norm(xbarsort_esgs .- xbarsort_plcp, Inf) <= tol
+@test norm(xbarsort_ssn .- xbarsort_grid, Inf) <= tol
 @test sum(xbarsort_esgs[1:k]) <= r+eps()
 @test sum(out_grbs[:x][1:k]) <= r+eps()
 @test sum(out_grbu[:xsort][1:k]) <= r+eps()
